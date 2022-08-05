@@ -101,6 +101,7 @@
         });
         socket.on('user connected', function (user) {
             users.push(user)
+            document.getElementById("users").innerHTML = ``;
             users.forEach((item, i) => {
                 document.getElementById("users").innerHTML += `
             <a class="list-group-item list-group-item-action active text-white rounded-0">
@@ -146,6 +147,7 @@
                             alt="user" width="50" class="rounded-circle">
                         <div class="media-body ml-3">
                             <div class="bg-light rounded py-2 px-3 mb-2">
+                                <h2>${msg.username}</h2>
                                 <p class="text-small mb-0 text-muted">${msg.message}</div>
                             <p class="small text-muted">12:00 PM | Aug 13</p>
                         </div>
