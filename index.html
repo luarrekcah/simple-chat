@@ -99,6 +99,7 @@
         socket.emit('user connected', {
             username: nome,
         });
+        
         socket.on('user connected', function (user) {
             users.push(user)
             document.getElementById("users").innerHTML = ``;
@@ -147,7 +148,7 @@
                             alt="user" width="50" class="rounded-circle">
                         <div class="media-body ml-3">
                             <div class="bg-light rounded py-2 px-3 mb-2">
-                                <h2>${msg.username}</h2>
+                                <h2>${msg.author}</h2>
                                 <p class="text-small mb-0 text-muted">${msg.message}</div>
                             <p class="small text-muted">12:00 PM | Aug 13</p>
                         </div>
