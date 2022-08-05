@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Chat</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        body {
+            background-color: #74EBD5;
+            background-image: linear-gradient(90deg, #74EBD5 0%, #9FACE6 100%);
+
+            min-height: 100vh;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            width: 5px;
+            background: #f5f5f5;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            width: 1em;
+            background-color: #ddd;
+            outline: 1px solid slategrey;
+            border-radius: 1rem;
+        }
+
+        .text-small {
+            font-size: 0.9rem;
+        }
+
+        .messages-box,
+        .chat-box {
+            height: 510px;
+            overflow-y: scroll;
+        }
+
+        .rounded-lg {
+            border-radius: 0.5rem;
+        }
+
+        input::placeholder {
+            font-size: 0.9rem;
+            color: #999;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container py-5 px-4">
+        <header class="text-center">
+            <h1 class="display-4 text-white">Simple Chat</h1>
+            <p class="text-white lead mb-0">Check the github!</p>
+        </header>
+        <div class="row rounded-lg overflow-hidden shadow">
+            <div class="col-5 px-0">
+                <div class="bg-white">
+                    <div class="bg-gray px-4 py-2 bg-light">
+                        <p class="h5 mb-0 py-1">Usuários Online</p>
+                    </div>
+                    <div class="messages-box">
+                        <div class="list-group rounded-0">
+                            <div id="users"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-7 px-0">
+                <div class="px-4 py-5 chat-box bg-white">
+                    <div id="messages"></div>
+                </div>
+                <form action="#" id="form" class="bg-light">
+                    <div class="input-group">
+                        <input id="input" type="text" placeholder="Type a message" aria-describedby="button-addon2"
+                            class="form-control rounded-0 border-0 py-4 bg-light">
+                        <div class="input-group-append">
+                            <button id="button-addon2" type="submit" class="btn btn-link"> <i
+                                    class="fa fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const nome = prompt("Qual seu nome?");
+        const socket = io();
+
+        let users = [];
+
+        socket.emit('user connected', {
+            username: nome,
+        });
+        socket.on('user connected', function (user) {
+            users.push(user)
+            users.forEach((item, i) => {
+                document.getElementById("users").innerHTML += `
+            <a class="list-group-item list-group-item-action active text-white rounded-0">
+                                <div class="media"><img src="https://bootstrapious.com/i/snippets/sn-chat/avatar.svg"
+                                        alt="user" width="50" class="rounded-circle">
+                                    <div class="media-body ml-4">
+                                        <div class="d-flex align-items-center justify-content-between mb-1">
+                                            <h6 class="mb-0">${item.username}</h6><small class="small font-weight-bold">25
+                                                Dec</small>
+                                        </div>
+                                        <p class="font-italic mb-0 text-small">Usuário atualmente ativo</p>
+                                    </div>
+                                </div>
+                            </a>
+`
+            })
+        });
+
+        socket.on('user desconnected', function (user) {
+            users = users.filter(() => users.username !== user.username)
+        });
+
+        const messages = document.getElementById('messages');
+        const form = document.getElementById('form');
+        const input = document.getElementById('input');
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (input.value) {
+                socket.emit('chat message', {
+                    author: nome,
+                    message: input.value
+                });
+                input.value = '';
+            }
+        });
+
+        socket.on('chat message', function (msg) {
+            console.log(msg)
+            const item = document.createElement('div');
+            if (msg.author != nome) {
+                item.innerHTML = ` <div class="media w-50 mb-3"><img src="https://bootstrapious.com/i/snippets/sn-chat/avatar.svg"
+                            alt="user" width="50" class="rounded-circle">
+                        <div class="media-body ml-3">
+                            <div class="bg-light rounded py-2 px-3 mb-2">
+                                <p class="text-small mb-0 text-muted">${msg.message}</div>
+                            <p class="small text-muted">12:00 PM | Aug 13</p>
+                        </div>
+                    </div>`;
+            } else {
+                item.innerHTML = `<div class="media w-50 ml-auto mb-3">
+                        <div class="media-body">
+                            <div class="bg-primary rounded py-2 px-3 mb-2">
+                                <p class="text-small mb-0 text-white">${msg.message}</p>
+                            </div>
+                            <p class="small text-muted">12:00 PM | Aug 13</p>
+                        </div>
+                    </div>`;
+            }
+
+            messages.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+
+    </script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
